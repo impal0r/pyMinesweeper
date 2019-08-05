@@ -299,7 +299,7 @@ if __name__=='__main__':
                  (28, 19), (29, 0), (6, 1), (12, 14), (25, 2), (17, 0), (16, 14),
                  (26, 12), (21, 22), (19, 9), (23, 8), (11, 20), (5, 10), (21, 21),
                  (0, 5), (0, 21)] #for testing start at (10,10)
-    game = MinesweeperGame(root,root,30,20,bomb_density=1/7)
+    game = MinesweeperGame(root,30,20,bomb_density=1/7)
     #game.randombombs = False
     game.pack()
     solver = MinesweeperSolver(game,delay=10,autostep=True)
