@@ -17,22 +17,23 @@ class MinesweeperGame(tk.Frame):
         size = (self.SQUARE,self.SQUARE)
         scale = pygame.transform.scale
         img_load = pygame.image.load
-        clear = scale(img_load('clear.png'),size)
-        _1    = scale(img_load('1.png'),size)
-        _2    = scale(img_load('2.png'),size)
-        _3    = scale(img_load('3.png'),size)
-        _4    = scale(img_load('4.png'),size)
-        _5    = scale(img_load('5.png'),size)
-        _6    = scale(img_load('6.png'),size)
-        _7    = scale(img_load('7.png'),size)
-        _8    = scale(img_load('8.png'),size)
-        bomb  = scale(img_load('bomb.png'),size)
+        img_name = lambda s: os.path.join('images', s)
+        clear = scale(img_load(img_name('clear.png')),size)
+        _1    = scale(img_load(img_name('1.png')),size)
+        _2    = scale(img_load(img_name('2.png')),size)
+        _3    = scale(img_load(img_name('3.png')),size)
+        _4    = scale(img_load(img_name('4.png')),size)
+        _5    = scale(img_load(img_name('5.png')),size)
+        _6    = scale(img_load(img_name('6.png')),size)
+        _7    = scale(img_load(img_name('7.png')),size)
+        _8    = scale(img_load(img_name('8.png')),size)
+        bomb  = scale(img_load(img_name('bomb.png')),size)
         self.imgs = (clear,_1,_2,_3,_4,_5,_6,_7,_8,*(None for i in range(7)),bomb)
         #index into imgs list will give image for that number
-        self.xbomb_img   = scale(img_load('xbomb.png'),size)
-        self.redbomb_img = scale(img_load('redbomb.png'),size)
-        self.flagged_img = scale(img_load('flagged.png'),size)
-        self.btn_img     = scale(img_load('btn.png'),size)
+        self.xbomb_img   = scale(img_load(img_name('xbomb.png')),size)
+        self.redbomb_img = scale(img_load(img_name('redbomb.png')),size)
+        self.flagged_img = scale(img_load(img_name('flagged.png')),size)
+        self.btn_img     = scale(img_load(img_name('btn.png')),size)
 
     def neighbours(self, x, y): #NB: Must return an iterable.
         if (x,y) in self._saved_neighbours:
