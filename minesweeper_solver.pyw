@@ -8,59 +8,6 @@ class MinesweeperSolver:
         self.delay = delay #milliseconds between each move
         self.AUTOSTEP = autostep
 
-        #modify clear_space function to return all new numbers/squares exposed
-        def _clear_space(self, x, y):
-            self.hide_button(x,y)
-            new_all = [(x,y)]
-            new_nums = []
-            Q = [(x,y)]
-            while Q:
-                x,y = Q.pop(0)
-                for i,j in self.neighbours(x,y):
-                    #if not already exposed OR flagged
-                    if not self.grid[i][j] & 0b1100000:
-                        self.hide_button(i, j)
-                        #in any case, add to new squares exposed
-                        new_all.append((i,j))
-                        if not self.grid[i][j] & 0b11111:
-                            Q.append((i,j))
-                        else: #if square has number, add to new_nums
-                            new_nums.append((i,j))
-            return new_nums, new_all
-        from types import MethodType
-        game.clear_space = MethodType(_clear_space, game)
-        #modify button_click function to forward this info
-        def _button_click(self, x, y):
-            if not (self.stop or self.grid[x][y] & 0b1100000):
-                ret = ([(x,y)],[(x,y)]) #crucial change
-                self.hide_button(x, y)
-                if self.grid[x][y] & 0b11111 > 15:
-                    if self.virgin:
-                        self.remove_bomb(x,y)
-                        i = random.randint(0,self.width-1)
-                        j = random.randint(0,self.height-1)
-                        if i==x and j==y: i=(i+1)%self.width
-                        while not self.add_bomb(i,j):
-                            i = random.randint(0,self.width-1)
-                            j = random.randint(0,self.height-1)
-                            if i==x and j==y: i=(i+1)%self.width
-                    else:
-                        self.lose(x,y)
-                if not self.grid[x][y] & 0b11111:
-                    ret = self.clear_space(x,y) #crucial change
-                if self.buttons_left == self.bomb_number:
-                    self.win()
-                if self.virgin:
-                    self._run_timer()
-                    self.virgin = False
-                return ret #crucial change
-            else:
-                if self.virgin:
-                    self._run_timer()
-                    self.virgin = False
-                return [], [] #also crucial change
-        game.button_click = MethodType(_button_click, game)
-
     @staticmethod
     def inc_wrap(i, max_):
         '''Increment i (modulo max_+1)
@@ -295,7 +242,7 @@ class MinesweeperSolver:
 
         #first click
         if start is None:
-            x, y = self.width//2, self.height//2
+            x, y = 0, 0#self.width//2, self.height//2
         else:
             x, y = start
         groups, boxmap = self._click_and_update(x,y,[],{}) #(cannot lose on first click)
@@ -331,7 +278,8 @@ def cheat_solve(game):
     game.stop = True
 
 if __name__=='__main__':
-    root = Tk()
+    from minesweeper import *
+    root = tk.Tk()
     root.title('Minesweeper')
     root.resizable(False, False)
 
@@ -351,11 +299,10 @@ if __name__=='__main__':
                  (28, 19), (29, 0), (6, 1), (12, 14), (25, 2), (17, 0), (16, 14),
                  (26, 12), (21, 22), (19, 9), (23, 8), (11, 20), (5, 10), (21, 21),
                  (0, 5), (0, 21)] #for testing start at (10,10)
-    game = MinesweeperGame(root,30,25,bomb_density=1/7)
+    game = MinesweeperGame(root,root,30,20,bomb_density=1/7)
     #game.randombombs = False
     game.pack()
-    solver = MinesweeperSolver(game,delay=100,autostep=True)
-##    from pprint import pprint
+    solver = MinesweeperSolver(game,delay=10,autostep=True)
     solver.solve()
 
     root.mainloop()
