@@ -11,10 +11,9 @@
 
 # Temp files #
 ##############
-*~
-*#
-*.bak
-*.swp
+**/*~
+**/*.bak
+**/*.sw[abcdefghijklmnop]
 
 # Packages #
 ############
