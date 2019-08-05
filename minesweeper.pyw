@@ -498,12 +498,6 @@ if __name__=='__main__':
     root.title('Minesweeper')
     root.resizable(False, False)
 
-    WM_DELETE_FUNCTIONS = [root.destroy]
-    def execute_wm_delete_functions():
-        for function in reversed(WM_DELETE_FUNCTIONS):
-            function()
-    root.protocol('WM_DELETE_WINDOW', execute_wm_delete_functions)
-
     game = MinesweeperGame(root, 30, 27, bomb_density=1/8)
     game.pack()
     root.mainloop()
