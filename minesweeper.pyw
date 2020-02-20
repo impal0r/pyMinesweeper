@@ -59,6 +59,15 @@ class MinesweeperGame(tk.Frame):
     def __init__(self, master, width, height,
                  bomb_number=None, bomb_density=1/6, bombs=None, seed=None,
                  scale=SCALE):
+        '''
+        Create a MinesweeperGame instance which can be embedded in any tkinter window,
+        width and height are in tiles,
+        the 16x16px tiles are scaled by SCALE (useful for HDPI displays).
+        If bombs (list of 2-tuples of integer coords) specified, bombs will be placed
+        at these coordinates. Otherwise they will be randomly generated based on either
+        bomb_density (proportion of tiles with a bomb) or bomb_number. In this case seed
+        is passed to random.seed() if it is not None.
+        '''
         #SET UP LOGICAL GRID
         #initialise grid
         self.width = int(width)
@@ -160,7 +169,7 @@ class MinesweeperGame(tk.Frame):
                     #work out number in square
                     count = 0
                     for x,y in self.neighbours(i,j):
-                        if self._grid[x][y] is 16:
+                        if self._grid[x][y] == 16:
                             count += 1
                     self._grid[i][j] = count
                 self.SCREEN.blit(self.btn_img, (self.SQUARE*i,self.SQUARE*j))
@@ -174,7 +183,7 @@ class MinesweeperGame(tk.Frame):
         self.stop = False
         #ONLY start timer after first click!
         self._runtimer = False
-        self._virgin = True
+        self._virgin = True #has the field been touched?
         self.won = False
         self.lost = False
         
@@ -245,7 +254,7 @@ class MinesweeperGame(tk.Frame):
                     #work out number in square
                     count = 0
                     for x,y in self.neighbours(i,j):
-                        if self._grid[x][y] is 16:
+                        if self._grid[x][y] == 16:
                             count += 1
                     self._grid[i][j] = count
                 self.SCREEN.blit(self.btn_img, (self.SQUARE*i,self.SQUARE*j))

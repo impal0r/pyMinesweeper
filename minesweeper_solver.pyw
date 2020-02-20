@@ -2,6 +2,13 @@ import random
 
 class MinesweeperSolver:
     def __init__(self, game, delay=100, autostep=True):#delay of 0 NOT recommended.
+        '''
+        A Minesweeper solving algorithm which tries to solve the puzzle
+        without 'cheating' by inspecting the MinesweeperGame.
+        It will pause [delay] milliseconds before making each move if
+        autostep is enabled, otherwise press T to make each move.
+        Note: delay of 0 NOT recommended as the window may not update properly.
+        '''
         self.game = game
         self.width = game.width
         self.height = game.height
@@ -225,7 +232,7 @@ class MinesweeperSolver:
                 #AUTO STEP
                 if changed_visible: #continue with delay
                     self.game.after(self.delay, lambda:self._step(groups, boxmap, nexti))
-                else: #continue without delay
+                else: #continue without delay if nothing happened
                     self._step(groups, boxmap, nexti)
             else:
                 #MANUAL STEP
@@ -261,13 +268,13 @@ class MinesweeperSolver:
     def __del__(self):
         self.game.unbind('t', self._step_proxy)
 
-def show_bombs(game):
+def cheat_show_bombs(game):
     '''Toggle flags on all bombs in game'''
     for bomb in game.bombs:
         game.button_flag(*bomb)
 
 def cheat_solve(game):
-    '''Just flag all bombs and clear all spaces'''
+    '''Flag all bombs and clear all spaces'''
     for i in range(game.width):
         for j in range(game.height):
             if game.stop: game.stop = False #so it definitely flags all bombs
