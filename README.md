@@ -9,6 +9,7 @@ Requirements: Python 3.6+, tkinter, pygame
  - Add `from minesweeper import *` at the top of your python program (minesweeper.py imports tkinter as tk so no need to import it again)
  - Create a tkinter window - making it non-resizable is recommended (`root = tk.Tk(); root.resizable(False, False)`)
  - You can now initialise a MinesweeperGame `MinesweeperGame(root, [options])` and show it in the window with `.pack()` or `.grid()`!
+ - Note: at the moment you cannot run more than one MinesweeperGame at a time because it modifies the SDL_WINDOWID environment variable.
 
 ### To use the solver
  - The minesweeper_solver.py file doesn't implicitly import minesweeper.py, so you will need both `from minesweeper import *; from minesweeper_solver import *`
