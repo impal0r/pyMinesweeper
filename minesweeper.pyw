@@ -507,6 +507,14 @@ if __name__=='__main__':
     root.title('Minesweeper')
     root.resizable(False, False)
 
-    game = MinesweeperGame(root, 30, 27, bomb_density=1/8)
+    #Create a game instance in the Tkinter window and run it
+    #`seed` is passed to random.seed() if it is not None
+    #`scale` parameter changes the size of the grid (default=2)
+    #In this example, the mine (bomb) density is specified as a fraction
+    # `bomb_number` can be used to say how many bombs should appear
+    # or a list of co-ordinates can be passed with `bombs` to create the same game
+    game = MinesweeperGame(root, width=30, height=27, bomb_density=1/8,
+                           seed=None, scale=SCALE)
+    #Note `seed` and `scale` have these values by default and are only included here for better documentation
     game.pack()
     root.mainloop()
