@@ -72,7 +72,7 @@ class MinesweeperGame(tk.Frame):
         #initialise grid
         self.width = int(width)
         self.height = int(height)
-        assert self.width > 0 and self.height > 0, 'Grid size must be positive'
+        assert self.width > 0 and self.height > 0, 'Grid dimensions must be positive'
         self._grid = [[0 for j in range(self.height)] for i in range(self.width)]
         #For each entry in the grid, counting from least significant end:
         #bits 0-3: cell number (#bombs in vicinity 0-8); should be 0 if bomb
@@ -117,6 +117,8 @@ class MinesweeperGame(tk.Frame):
         else:
             self.bomb_number = int(bomb_number)
             assert self.bomb_number >= 0, 'Number of bombs cannot be negative'
+            assert self.bomb_number <= self.width * self.height, \
+                   "Number of bombs can't be more than the number of squares"
         #generate bombs
         i = len(self.bombs) #if bombs already specified, make up the difference
         while i<self.bomb_number:
@@ -151,6 +153,7 @@ class MinesweeperGame(tk.Frame):
         self.reset_btn.place(relx=.5,rely=.5,anchor='c')
         self.topBar.pack(expand=1,fill='both')
         #main game area (pygame)
+        self.scale = scale
         self.SQUARE = round(self.IMG_SIZE*scale+.5) #size of square in px (round up)
         self.game_width = self.SQUARE*self.width    #height of actual game
         self.game_height = self.SQUARE*self.height  #width  of actual game
@@ -159,7 +162,6 @@ class MinesweeperGame(tk.Frame):
         os.environ['SDL_WINDOWID'] = str(self.embed.winfo_id())
         self.SCREEN = pygame.display.set_mode((self.game_width,self.game_height))
         self.SCREEN.fill((0xdd,0xdd,0xdd))
-        pygame.display.init()
         #get images as Surface objects
         self._load_images()
         #draw grid (and put bomb count in cells)
@@ -183,30 +185,47 @@ class MinesweeperGame(tk.Frame):
         self.stop = False
         #ONLY start timer after first click!
         self._runtimer = False
-        self._virgin = True #has the field been touched?
+        self._virgin = True #has the playing field been touched?
         self.won = False
         self.lost = False
         
         self._run()
 
     def set_win_func(self, function):
-        ''''function' will be executed whenever the game is lost.
-        It must take 1 argument, namely this MinesweeperGame object,
+        '''`function` will be executed whenever the game is lost.
+        It must take 1 argument, `self`,
         as it is treated as a class method.
         Use to define extra custom behaviour'''
         from types import MethodType
         self.win_func = MethodType(function, self)
 
     def set_lose_func(self, function):
-        ''''function' will be executed whenever the game is won.
-        It must take 3 arguments, namely 'self, x, y'.
-        self is this MinesweeperGame object (function is treated as a class method)
-        x and y are the co-ordinates of the bomb that was clicked
+        '''`function` will be executed whenever the game is won.
+        It must take 3 arguments, `self, x, y`.
+        `self` is this MinesweeperGame object (function is treated as a class method)
+        x and y are the co-ordinates of the last bomb that was clicked
         Use to define extra custom behaviour'''
         from types import MethodType
         self.lose_func = MethodType(function, self)
 
-    def reset(self, bomb_number=None, bomb_density=None, bombs=None):
+    def reset(self, new_width=None, new_height=None,
+              bomb_number=None, bomb_density=None, bombs=None,
+              seed=None, scale=None):
+        change_dimensions = False
+        if new_width is not None:
+            self.width = int(new_width)
+            assert self.width > 0, 'Grid dimensions must be positive'
+            change_dimensions = True
+        if new_height is not None:
+            self.height = int(new_height)
+            assert self.height > 0, 'Grid dimensions must be positive'
+            change_dimensions = True
+        if scale is not None:
+            if not change_dimensions:
+                raise ValueError('A scale can only be passed to reset if new dimensions are specified')
+            self.scale = scale
+
+        #Reset grid and place new bombs, unless no arguments are specified
         if bombs is not None:
             #reset logical grid
             self._grid = [[0 for j in range(self.height)] for i in range(self.width)]
@@ -230,9 +249,18 @@ class MinesweeperGame(tk.Frame):
         elif bomb_number is not None:
             self.bomb_number = int(bomb_number)
             assert self.bomb_number >= 0, 'Number of bombs cannot be negative'
+            assert self.bomb_number <= self.width * self.height, \
+                   "Number of bombs can't be more than the number of squares"
+            self.randombombs = True
         elif bomb_density is not None:
-            assert 0 <= bomb_density <= 1, 'Bomb density must be a number between 0 and 1'
+            assert 0 <= bomb_density <= 1, 'Bomb density must be between 0 and 1'
             self.bomb_number = int(width*height * bomb_density)
+            self.randombombs = True
+
+        if seed is not None:
+            if not self.randombombs:
+                raise TypeError('A seed can only be passed to reset if new bombs are to be randomly generated')
+            random.seed(seed)
 
         if self.randombombs:
             #reset logical grid
@@ -247,6 +275,18 @@ class MinesweeperGame(tk.Frame):
                     self._grid[x][y] = 16 #denotes bomb
                     self.bombs.append((x,y))
                     i += 1
+
+        if change_dimensions:
+            #reset dict which speeds up neighbours function
+            self._saved_neighbours = {}
+            #reset game area
+            self.SQUARE = round(self.IMG_SIZE*self.scale+.5) #size of square in px (round up)
+            self.game_width = self.SQUARE*self.width    #height of actual game
+            self.game_height = self.SQUARE*self.height  #width  of actual game
+            self.embed.config(width=self.game_width, height=self.game_height)
+            self.SCREEN = pygame.display.set_mode((self.game_width,self.game_height))
+            self.SCREEN.fill((0xdd,0xdd,0xdd))
+
         #work out bomb numbers if regenerated, and reset grid
         for i in range(self.width):
             for j in range(self.height):
@@ -341,7 +381,11 @@ class MinesweeperGame(tk.Frame):
                         else:
                             self.button_flag(x, y)
         pygame.display.update()
-        self.after(1, self._run)
+        #pygame needs an explicit mainloop to constantly check for events.
+        #This function makes sure it is called again after a short delay
+        #so that pygame can process events in the event queue
+        if not self.stop:
+            self.after(2, self._run)
 
     def clear_space(self, x, y):
         #self.hide_button(x,y)
