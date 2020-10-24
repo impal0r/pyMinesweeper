@@ -277,8 +277,9 @@ def cheat_solve(game):
     '''Flag all bombs and clear all spaces'''
     for i in range(game.width):
         for j in range(game.height):
-            if game.stop: game.stop = False #so it definitely flags all bombs
-            if game.grid[i][j] & 0b10000: #bomb
+            #Make sure it flags all bombs (game.stop is set when we win, but some bombs may still be unflagged)
+            if game.stop: game.stop = False
+            if game._grid[i][j] & 0b10000: #bomb
                 game.button_flag(i,j)
             else:
                 game.button_click(i,j)

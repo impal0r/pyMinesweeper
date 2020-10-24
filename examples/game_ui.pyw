@@ -8,7 +8,6 @@ import sys, os
 sys.path.append('..')
 
 from minesweeper import *
-from minesweeper_solver import *
 
 #restore sys.path
 sys.path.remove('..')
