@@ -1,5 +1,8 @@
 # pyMinesweeper
-An implementation of Minesweeper in modern Python, and of an algorithm which solves it automatically.
+An implementation of Minesweeper in Python 3.6, and of an algorithm which solves it automatically.
+
+> [!WARNING]  
+> The graphics code uses pygame to render to a tkinter frame, mixing the two libraries together. I originally did this to save the effort of reimplementing buttons in pygame (silly, I know). As of 2023, this no longer works and causes two separate windows to open. I might fix this in the future by rewriting the app using only the pygame library.
 
 ### Requirements
 - Python 3.6+
