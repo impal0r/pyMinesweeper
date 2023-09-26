@@ -1,0 +1,32 @@
+{
+    "style": {
+        "default_font": "arial"
+    },
+    "colours": {
+        "background": "#d0d0d0",
+        "lcd_background": "black",
+        "lcd_text": "red",
+        "button_background": "#e0e0e0",
+        "button_hover": "#e8e8e8",
+        "button_click": "#c0c0c0",
+        "button_text": "black",
+        "button_flash": "#70ff70",
+        "ai_panel_background": "#c0c0c0"
+    },
+    "game": {
+        "grid_width": 20,
+        "grid_height": 20,
+        "mine_density": 0.17,
+        "mine_number": null,
+        "mine_locations": null,
+        "seed": null
+    },
+    "other": {
+        "ui_scale": 2,
+        "grid_scale": 2,
+        "max_framerate": 60,
+        "max_name_len": 30,
+        "image_path": "images",
+        "font_path": "fonts"
+    }
+}
